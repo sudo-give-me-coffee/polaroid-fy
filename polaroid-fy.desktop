@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=polaroid-fy
+Type=Application
+Exec=polaroid-fy
+Icon=imagemagick
+Comment=Create, edit, compose, or convert bitmap images
+Categories=Graphics;
+Terminal=true
