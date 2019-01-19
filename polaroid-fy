@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ "$1" = "" ]; then
+  echo -e "Usage: polaroid-fy filename [text] \n"
+  echo "[text] is a optional argument it will be added at bottom of polaroid"
+  exit 1
+fi
+
+FILENAME="$1"
+shift 
+TEXT="$@"
+
+echo -n "Making polaroid effect..."
+convert -caption "$TEXT"  "$FILENAME" -bordercolor AliceBlue -pointsize 20 -background transparent -polaroid 10  "${FILENAME%.*}"-polaroid-out.png && echo "ok"
+
