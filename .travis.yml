@@ -1,0 +1,25 @@
+language: generic
+dist: trusty
+
+script:
+  - URL=$(wget -q "https://github.com/ImageMagick/ImageMagick/releases" -O - | grep "gcc-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
+  - wget -c "https://github.com/$URL"
+  - chmod +x ./ImageMagick-*.AppImage
+  - ./ImageMagick-*.AppImage --appimage-extract
+  - cp polaroid-fy squashfs-root/usr/bin/
+  - chmod +x squashfs-root/usr/bin/polaroid-fy
+  - sed -i -e 's|usr/bin/magick|usr/bin/polaroid-fy|g' squashfs-root/AppRun
+  - cp polaroid-fy.desktop squashfs-root/
+  - rm squashfs-root/imagemagick.desktop
+  - wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+  - chmod +x ./appimagetool-x86_64.AppImage
+  - ./appimagetool-x86_64.AppImage -g squashfs-root/
+
+after_success:
+  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+  - bash upload.sh polaroid-fy*.AppImage*
+  
+branches:
+  except:
+    - # Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous)/
