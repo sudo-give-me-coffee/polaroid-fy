@@ -1,9 +1,151 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+LANG__="$(echo $LANG | cut -c 1-2)"
+
+SCRIPT="$(readlink -f "$0")"
+SCRIPTPATH="$(dirname "$SCRIPT")"
+ICON_DIR="$(dirname "$SCRIPTPATH")/share/icons/hicolor/scalable/polaroid-fy.svg"
+
+PATH="$PATH:$SCRIPTPATH"
+
+function toPortuguese(){
+  image_lbl="Imagem"
+  image_required_lbl="Para prosseguir é preciso escolher uma imagem"
+  image_created_lbl="Imagem criada com sucesso em"
+  resolution_lbl="Legenda:"
+  error_ocurred_title="Ocorreu um erro"
+  error_ocurred_message="A imagem pode estar corrompida"
+}
+
+function toEnglish(){
+  image_lbl="Image"
+  image_required_lbl="To proceed you must choose an image"
+  image_created_lbl="Image created successfully in"
+  resolution_lbl="Caption:"
+  error_ocurred_title="An error has occurred"
+  error_ocurred_message="The image may be corrupted"
+}
+
+function toSpanish(){
+  image_lbl="Imagen"
+  image_required_lbl="Para proseguir es necesario elegir una imagen"
+  image_created_lbl="Imagen creada con éxito en"
+  resolution_lbl="Leyenda:"
+  type_resolution="Introduzca la resolución deseada"
+  error_ocurred_title="Ocurrio un error"
+  error_ocurred_message="La imagen puede estar dañada"
+}
+
+toEnglish
+
+if [ "$LANG__" = "pt" ]; then
+   toPortuguese
+fi
+
+if [ "$LANG__" = "es" ]; then
+   toSpanish
+fi
+
+function getDATA() {
+   FORM=$(
+              yad --form \
+                  --center \
+                  --fixed \
+                  --window-icon="$ICON_DIR" \
+                  --title="Highquality-fy" \
+                  --text="$1" \
+                  --borders=32 \
+                  --width=480 \
+                  --field="$image_lbl:":FL "$(xdg-user-dir PICTURES)" \
+                  --field="$resolution_lbl:      " \
+                  --field=" ":LBL \
+                  --image-filter="Images" \
+                  --class=hiquality-fy --name=hiquality-fy \
+                  --add-preview || echo exit
+         ) 
+         
+   if [ "$FORM" = "exit" ]; then
+      exit 1
+   fi
+
+   FILE=$(echo "$FORM" | cut -d"|" -f 1)
+   CAPTION=$(echo "$FORM" | cut -d"|" -f 2)
+   
+   if [ "$FILE" = "$(xdg-user-dir PICTURES)" ]; then
+      getDATA "<b>$image_required_lbl</b>\n\n"
+   fi
+}
+
+function catchError() {
+  if [ "$USE_GUI" = "Y" ]; then
+    yad  --button=gtk-close \
+         --image=error \
+         --image-on-top\
+         --center \
+         --fixed \
+         --title="Highquality-fy" \
+         --width=480 \--borders=32 \
+         --window-icon="$ICON_DIR" \
+         --text="<b>$error_ocurred_title</b>\n$error_ocurred_message\n"
+  fi
+  echo -ne "failed\n"
+  rm -rf "$WORKING_DIR"
+  exit 1
+}
+
+function genImage() {
+  WORKING_DIR=$(mktemp)
+  OLD_DIR="$PWD"
+  rm "$WORKING_DIR"
+  mkdir -p "$WORKING_DIR"
+
+  cp "$FILE" $WORKING_DIR/image_original.png || catchError
+  cd $WORKING_DIR
+  echo -n "Making polaroid effect..."
+  convert -caption "$TEXT"  "image_original.png" -bordercolor AliceBlue -pointsize 20 -background transparent -polaroid 10  output.png && echo "ok" || catchError
+  
+  echo -e "ok"
+  cd $OLD_DIR || catchError
+
+  mv $WORKING_DIR/output.png ${FILE%.*}-polaroid-out.png || catchError
+  rm -rf "$WORKING_DIR"
+}
 
 if [ "$1" = "" ]; then
+  USE_GUI="Y"
+fi
+
+if [ "$1" = "--help" ]; then
   echo -e "Usage: polaroid-fy filename [text] \n"
   echo "[text] is a optional argument it will be added at bottom of polaroid"
-  exit 1
+fi
+
+
+if [ "$USE_GUI" = "Y" ]; then
+   cd $(xdg-user-dir PICTURES)
+   getDATA
+   genImage | yad --progress \
+                  --class=hiquality-fy --name=hiquality-fy \
+                  --borders=32 \
+                  --width=480 \
+                  --text="Criando imagem..."  \
+                  --pulsate --auto-close --progress-text=" " \
+                  --no-buttons \
+                  --window-icon="$ICON_DIR" \
+                  --title="Highquality-fy" \
+                  --center \
+                  --fixed
+                  
+   yad --button=gtk-ok \
+       --center \
+       --fixed \
+       --title="Highquality-fy" \
+       --width=480 \--borders=32 \
+       --window-icon="$ICON_DIR" \
+       --text="<b>$image_created_lbl</b>\n${FILE%.*}-polaroid-out.png\n"
+       
+   rm -rf "$WORKING_DIR"
+   exit 0
 fi
 
 FILENAME="$1"
@@ -12,4 +154,3 @@ TEXT="$@"
 
 echo -n "Making polaroid effect..."
 convert -caption "$TEXT"  "$FILENAME" -bordercolor AliceBlue -pointsize 20 -background transparent -polaroid 10  "${FILENAME%.*}"-polaroid-out.png && echo "ok"
-
