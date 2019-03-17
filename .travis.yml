@@ -29,15 +29,15 @@ script:
  - sed -i -e 's|usr/bin/magick|usr/bin/polaroid-fy|g' squashfs-root/AppRun
  - cp polaroid-fy.desktop squashfs-root/
  - rm squashfs-root/imagemagick.desktop
- - wget https://github.com/AppImage/AppImageKit/releases/download/continuous/runtime-x86_64
- - chmod +x ./runtime-x86_64
- - mksquashfs squashfs-root/ root.squashfs -root-owned -noappend
- - cat root.squashfs >> runtime-x86_64.AppImage
- - mv runtime-x86_64.AppImage polaroid-fy-x86_64.AppImage
+ - wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+ - chmod +x ./appimagetool-x86_64.AppImage
+ - ./appimagetool-x86_64.AppImage -g squashfs-root/
+ - ls
+ - mv polaroid-fy*-x86_64.AppImage polaroid-fy-x86_64.AppImage
 
 after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - bash upload.sh polaroid-fy*.AppImage*
+  - bash upload.sh polaroid-fy*-x86_64.AppImage*
   
 branches:
   except:
