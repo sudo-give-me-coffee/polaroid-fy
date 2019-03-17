@@ -1,6 +1,9 @@
 language: generic
 dist: trusty
 
+before_install:
+  - sudo apt-get install -y squashfs-tools
+
 script:
  - URL=$(wget -q "https://github.com/ImageMagick/ImageMagick/releases" -O - | grep "gcc-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
  - wget -c "https://github.com/$URL"
