@@ -6,6 +6,7 @@ script:
  - wget -c "https://github.com/$URL"
  - chmod +x ./ImageMagick-*.AppImage
  - ./ImageMagick-*.AppImage --appimage-extract
+ - apt install squashfs-tools -y
  - wget -c "http://mirrors.kernel.org/ubuntu/pool/universe/y/yad/yad_0.27.0-1.1_amd64.deb"
  - mv yad*.deb squashfs-root/
  - cd squashfs-root/
