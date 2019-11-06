@@ -5,36 +5,8 @@ before_install:
   - sudo apt-get install -y squashfs-tools
 
 script:
- - URL=$(wget -q "https://github.com/ImageMagick/ImageMagick/releases" -O - | grep "gcc-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
- - wget -c "https://github.com/$URL"
- - chmod +x ./ImageMagick-*.AppImage
- - ./ImageMagick-*.AppImage --appimage-extract
- - apt install squashfs-tools -y
- - wget -c "http://mirrors.kernel.org/ubuntu/pool/universe/y/yad/yad_0.27.0-1.1_amd64.deb"
- - mv yad*.deb squashfs-root/
- - cd squashfs-root/
- - wget -c "https://raw.githubusercontent.com/sudo-give-me-coffee/polaroid-fy/master/polaroid-fy.svg"
- - mkdir -p usr/share/icons/hicolor/scalable
- - cp polaroid-fy.svg usr/share/icons/hicolor/scalable/
- - mv polaroid-fy.svg .DirIcon
- - ar x yad*.deb
- - tar -xJf data.tar.xz ./
- - rm control.tar.gz
- - rm data.tar.xz
- - rm debian-binary
- - rm yad*.deb
- - cd ..
- - cp polaroid-fy squashfs-root/usr/bin/
- - chmod +x squashfs-root/usr/bin/polaroid-fy
- - sed -i -e 's|usr/bin/magick|usr/bin/polaroid-fy|g' squashfs-root/AppRun
- - cp polaroid-fy.desktop squashfs-root/
- - rm squashfs-root/imagemagick.desktop
- - wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
- - chmod +x ./appimagetool-x86_64.AppImage
- - ./appimagetool-x86_64.AppImage -g squashfs-root/
- - ls squashfs-root/
- - mv polaroid-fy*-x86_64.AppImage polaroid-fy-x86_64.AppImage
-
+  - chmod +x QtCreator
+  - ./QtCreator
 after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   - bash upload.sh polaroid-fy*-x86_64.AppImage*
