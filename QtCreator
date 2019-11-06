@@ -341,3 +341,7 @@ find $AD/usr/lib/gcc/x86_64-linux-gnu/* -type f -executable -exec patchelf --set
 cd .. # go out of g++/
 
 generate_type2_appimage
+
+ls
+ls ./out
+ls ../out
