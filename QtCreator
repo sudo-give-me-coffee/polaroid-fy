@@ -15,7 +15,7 @@ wget -q https://github.com/AppImage/AppImages/raw/master/functions.sh -O ./funct
 
 # Pick best mirror (Travis CI can then download this in 9 seconds)
 URL=$(wget -q "https://download.qt.io/official_releases/qt/5.13/5.13.2/qt-opensource-linux-x64-5.13.2.run.mirrorlist" -O - | grep "run<" | head -n 2 | tail -n 1 | cut -d '"' -f 2)
-wget -c "$URL"
+wget -c "$URL" > /dev/null 2> /dev/null
 
 cat > extract-qt-installer <<\EOoF
 #!/bin/bash
